@@ -12,32 +12,23 @@
 
     start:
         # aca va su codigo  :3
-        # li a0, 2 # a0 = 2 
-        # li a7, 4 # a7 = 4 
-        # li a1, 3
-        # add t0, a0, a7 # t0 = a0 + a7
-        
-        # la t0, I
-        # lw a2, I
-        
-        # jal t0, function
 
         li a0, -1
-        jal t0, heaviside
+        jal ra, heaviside
 
         li a0, 1
-        jal t0, heaviside
+        jal ra, heaviside
+        
+        jal ra, activacion
         
         j end
 
         heaviside:
             # H(x) = 0 if x <= 0 else 1
-            # registro de retorno:
-            #   t0
             # registros de entrada son:
-            #   x -> a0
+            #   x       -> a0
             # registros de salida son:
-            #   x -> a1
+            #   H(x)    -> a1
             # registros temporales son: 
             # ...
             bgt a0, zero, positive # if a0 > zero then target
@@ -49,26 +40,27 @@
                 j end_heaviside
             
             end_heaviside:
-                jalr t0
-            
-
+                jalr zero, 0(ra)
         
-        function:
-            # f(x,y) = x + y
-            # registro de retorno: 
-            #   t0
+        activacion:
+            # A(x) = ...
             # registros de entrada son:
-            #   x -> a0
-            #   y -> a1
+            #   x       -> a0
             # registros de salida son:
-            #   x -> a2
+            #   A(x)    -> a1
             # registros temporales son: 
             # ...
-            
-            add a2, a0, a1  # a2 = a0 + a1
 
-            jalr t0
+            la s1, I
+            lw t1, 0(s1) # t1 = H
+            lw t2, 4(s1) # t2 = P
+            lw t3, 8(s1) # t3 = G
 
+            mul a1, t1, t2
+            j end_activacion
+        
+            end_activacion:
+                jalr zero, 0(ra)
     
     end:
 
