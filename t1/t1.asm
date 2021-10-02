@@ -1,7 +1,14 @@
 .globl  start
 .data
+    # --- TERREMOTO ---
+    I: .word H, P, G 	# porcentajes de cada uno de los ingredientes, siempre suman 100
+    # No modificar
+    Wa: .word 7, 3, 2 	# pesos w_a para el primer perceptron
+    Wb: .word 4, 2, 8 	# pesos w_b para el segundo perceptron
+    U:  .word 150 		# umbral
+    # --- END TERREMOTO ---
+    # de aca para abajo van sus variables en memoria
 .text
-
     start:
         # aca va su codigo  :3
 
@@ -13,6 +20,18 @@
         # jal ra, exp_module
         
         j end
+        
+        main:
+            addi sp, sp, -8
+            sw ra, 0(sp)
+            
+            # perceptron 1
+            
+        
+            end_main:
+            	lw ra, 0(sp)
+            	addi sp, sp, 8
+                jalr zero, 0(ra)
 
         activacion:
             # y = f(x, u)
@@ -271,3 +290,5 @@
 
     end:
 
+
+        

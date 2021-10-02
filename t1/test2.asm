@@ -16,4 +16,6 @@
         add t0, a0, a7 # t0 = a0 + a7
         
         la t0, I
-        lw a2, I
+        lw a2, 0(t0)
+        lw a3, 4(t0)
+        lw a4, 8(t0)
