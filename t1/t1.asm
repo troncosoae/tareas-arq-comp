@@ -1,37 +1,100 @@
 .globl  start
 .data
     # --- TERREMOTO ---
-    I: .word H, P, G 	# porcentajes de cada uno de los ingredientes, siempre suman 100
+    I: .word 15, 48, 37	# porcentajes de cada uno de los ingredientes, siempre suman 100
     # No modificar
     Wa: .word 7, 3, 2 	# pesos w_a para el primer perceptron
     Wb: .word 4, 2, 8 	# pesos w_b para el segundo perceptron
-    U:  .word 150 		# umbral
+    U:  .word 550 		# umbral
     # --- END TERREMOTO ---
     # de aca para abajo van sus variables en memoria
 .text
     start:
         # aca va su codigo  :3
+        
+            
+            la t0, I
+            lw a0, 0(t0)
+            lw a1, 4(t0)
+            lw a2, 8(t0)
+            
+            la t1, U
+            lw t1, 0(t1)
+            
+            #j perc2
+            
+            perc1:
+            # perceptron 1
+            lw a0, 0(t0)
+            lw a1, 4(t0)
+            lw a2, 8(t0)
+            la t2, Wa
+            lw t3, 0(t2)
+            lw t4, 4(t2)
+            lw t5, 8(t2)
+            
+            mul t3, t3, a0
+            mul t4, t4, a1
+            mul t5, t5, a2
+            
+            add t3, t3, t4
+            add t3, t3, t5
+            
+            mv a0, t3
+            mv a1, t1
+            jal ra, activacion
+            mv t6, a2
+            
+            #j end
+            
+            perc2:
+            # perceptron 2
+            lw a0, 0(t0)
+            lw a1, 4(t0)
+            lw a2, 8(t0)
+            la t2, Wb
+            lw t3, 0(t2)
+            lw t4, 4(t2)
+            lw t5, 8(t2)
+            
+            mul t3, t3, a0
+            mul t4, t4, a1
+            mul t5, t5, a2
+            
+            add t3, t3, t4
+            add t3, t3, t5
+            
+            mv a0, t3
+            mv a1, t1
+            jal ra, activacion
+            mv s0, a2
+            
+            #j end
+            
+            and a0, s0, t6
 
-        li a0, 695
-        li a1, 500
+        #li a0, 695
+        #li a1, 500
         # li a1, 695
         # li a2, 695
-        jal ra, activacion
+        #jal ra, activacion
         # jal ra, exp_module
         
         j end
         
-        main:
-            addi sp, sp, -8
-            sw ra, 0(sp)
+        perceptron:
+            # A(sum(Wx))
+            # registros de entrada son:
+            #   I -> a0
+            #   U -> a1
+            #   Wa -> a2
+            # registros de salida son:
+            #   y -> a3
+            # registros temporales son:
+            #   ...
             
-            # perceptron 1
+            end_perceptron:
             
-        
-            end_main:
-            	lw ra, 0(sp)
-            	addi sp, sp, 8
-                jalr zero, 0(ra)
 
         activacion:
             # y = f(x, u)
