@@ -1,108 +1,104 @@
 .globl  start
 .data
     # --- TERREMOTO ---
-    I: .word 15, 48, 37	# porcentajes de cada uno de los ingredientes, siempre suman 100
+    I: .word 28, 57, 15	# porcentajes de cada uno de los ingredientes, siempre suman 100
     # No modificar
     Wa: .word 7, 3, 2 	# pesos w_a para el primer perceptron
     Wb: .word 4, 2, 8 	# pesos w_b para el segundo perceptron
-    U:  .word 550 		# umbral
+    U:  .word 450 		# umbral
     # --- END TERREMOTO ---
     # de aca para abajo van sus variables en memoria
 .text
     start:
         # aca va su codigo  :3
-        
-            
-            la t0, I
-            lw a0, 0(t0)
-            lw a1, 4(t0)
-            lw a2, 8(t0)
-            
-            la t1, U
-            lw t1, 0(t1)
-            
-            #j perc2
             
             perc1:
             # perceptron 1
-            lw a0, 0(t0)
-            lw a1, 4(t0)
-            lw a2, 8(t0)
-            la t2, Wa
-            lw t3, 0(t2)
-            lw t4, 4(t2)
-            lw t5, 8(t2)
-            
-            mul t3, t3, a0
-            mul t4, t4, a1
-            mul t5, t5, a2
-            
-            add t3, t3, t4
-            add t3, t3, t5
-            
-            mv a2, t3
-            mv a3, t1
-            jal ra, activacion
-            mv t6, a0
+            la a2, I
+            la a3, U
+            la a4, Wa
+            jal ra, perceptron
+            mv t0, a0
             
             #j end
             
             perc2:
-            # perceptron 2
-            lw a0, 0(t0)
-            lw a1, 4(t0)
-            lw a2, 8(t0)
-            la t2, Wb
-            lw t3, 0(t2)
-            lw t4, 4(t2)
-            lw t5, 8(t2)
+            # perceptron 2            
+            la a2, I
+            la a3, U
+            la a4, Wb
+            jal ra, perceptron
+            mv t1, a0
             
-            mul t3, t3, a0
-            mul t4, t4, a1
-            mul t5, t5, a2
-            
-            add t3, t3, t4
-            add t3, t3, t5
-            
-            mv a2, t3
-            mv a3, t1
-            jal ra, activacion
-            mv s0, a0
-            
-            #j end
-            
-            and a0, s0, t6
-
-        #li a0, 695
-        #li a1, 500
-        # li a1, 695
-        # li a2, 695
-        #jal ra, activacion
-        # jal ra, exp_module
+            and a0, t0, t1
         
         j end
         
         perceptron:
             # A(sum(Wx))
             # registros de entrada son:
-            #   I -> a0
-            #   U -> a1
-            #   Wa -> a2
+            #   I -> a2
+            #   U -> a3
+            #   Wa -> a4
             # registros de salida son:
-            #   y -> a3
+            #   y -> a0
             # registros temporales son:
-            #   ...
+            #   t0, t1, t2, t3, t4, t5, t6
+            
+            addi sp, sp, -64
+            sw ra, 0(sp)
+            sw t0, 8(sp)
+            sw t1, 16(sp)
+            sw t2, 24(sp)
+            sw t3, 32(sp)
+            sw t4, 40(sp)
+            sw t5, 48(sp)
+            sw t6, 56(sp)
+            
+            #la t0, I
+            lw t0, 0(a2) # I
+            lw t1, 4(a2)
+            lw t2, 8(a2)
+            
+            #la t1, U
+            lw t3, 0(a3) # U
+            
+            #la t2, Wa
+            lw t4, 0(a4) # Wi
+            lw t5, 4(a4)
+            lw t6, 8(a4)
+            
+            mul t0, t0, t4
+            mul t1, t1, t5
+            mul t2, t2, t6
+            
+            add t0, t0, t1
+            add t0, t0, t2 # sum
+            
+            mv a2, t0
+            mv a3, t3
+            jal ra, activacion
+            mv a0, a0
             
             end_perceptron:
-            
+            	lw ra, 0(sp)
+                lw t0, 8(sp)
+                lw t1, 16(sp)
+                lw t2, 24(sp)
+                lw t3, 32(sp)
+                lw t4, 40(sp)
+                lw t5, 48(sp)
+                lw t6, 56(sp)
+            	addi sp, sp, 64
+                jalr zero, 0(ra)
 
         activacion:
             # y = f(x, u)
             # registros de entrada son:
-            #   x -> a0 a2
-            #   u -> a1 a3
+            #   x -> a2
+            #   u -> a3
             # registros de salida son:
-            #   y -> a2 a0
+            #   y -> a0
             # registros temporales son: 
             #   s0, s1, t0
             
@@ -117,22 +113,22 @@
             
             bgt s0, s1, activacion_if
                 # x <= u
-                addi a0, s0, -1
-                mv a1, s0
+                addi a2, s0, -1
+                mv a3, s0
                 jal ra, module
-                mv t0, a2
+                mv t0, a0
                 
             j end_activacion_if
             activacion_if:
                 # x > u
-                li a0, 3
-                mv a1, s0
-                mv a2, s0
+                li a2, 3
+                mv a3, s0
+                mv a4, s0
                 jal ra, exp_module
-                mv a0, a3
-                li a1, 3
+                mv a2, a0
+                li a3, 3
                 jal ra, module
-                mv t0, a2
+                mv t0, a0
             
             end_activacion_if:
             mv a2, t0
@@ -152,11 +148,11 @@
         exp_module:
             # x = (a**b % c)
             # registros de entrada son: 
-            #   a -> a0
-            #   b -> a1
-            #   c -> a2
+            #   a -> a0 a2
+            #   b -> a1 a3
+            #   c -> a2 a4
             # registros salida: 
-            #   x -> a3
+            #   x -> a3 a0
             # registros temporales: 
             #   t0 -> 00001000 moving left
             #   t1 = 700
@@ -175,9 +171,9 @@
             sw t4, 64(sp)
             sw t5, 72(sp)
             
-            mv s0, a0
-            mv s1, a1
-            mv s2, a2
+            mv s0, a2
+            mv s1, a3
+            mv s2, a4
             
             li t0, 1 # t0 = 000000...001
             li t1, 700
@@ -185,9 +181,10 @@
             
            
             # a % c
-            mv a1, s2
+            mv a2, s0
+            mv a3, s2
             jal ra, module
-            mv t3, a2 # prev a**i % c
+            mv t3, a0 # prev a**i % c
             
             and t2, t0, s1
             beq t2, zero, exp_module_else
@@ -206,10 +203,10 @@
             	
             	# a**2i % c
             	mul t4, t3, t3
-            	mv a0, t4
-            	mv a1, s2
+            	mv a2, t4
+            	mv a3, s2
             	jal ra, module
-            	mv t3, a2
+            	mv t3, a0
             	
             	beq t2, zero, while_exp_module_continue
             	    # if t2 > 0
@@ -217,10 +214,10 @@
             	    
             	    ble t5, s2, else_while_exp_module_continue
             	    # if t5 > s2 -> get mod
-            	    	mv a0, t5
-            	    	mv a1, s2
+            	    	mv a2, t5
+            	    	mv a3, s2
             	    	jal ra, module
-            	    	mv t5, a2
+            	    	mv t5, a0
             	    
             	    else_while_exp_module_continue:
             	    
@@ -231,11 +228,11 @@
             	j while_exp_module
             	
             end_while_exp_module:
-            mv a0, t5
-            mv a1, s2
+            mv a2, t5
+            mv a3, s2
             jal ra, module
             
-            mv a3, a2
+            mv a3, a0
         
             end_exp_module:
                 lw ra, 0(sp)
@@ -254,10 +251,10 @@
         module:
             # z = x % y
             # registros de entrada son:
-            #   x -> a0
-            #   y -> a1
+            #   x -> a0 a2
+            #   y -> a1 a3
             # registros de salida son:
-            #   z -> a2
+            #   z -> a2 a0
             # registros temporales son: 
             #   t0
             
@@ -270,14 +267,14 @@
             j while_module
             
             while_module:
-            	bgt t0, a0, end_while_module
-            	add t0, t0, a1
+            	bgt t0, a2, end_while_module
+            	add t0, t0, a3
             	j while_module
             
             end_while_module:
-            sub t0, t0, a1
+            sub t0, t0, a3
             
-            sub a2, a0, t0
+            sub a0, a2, t0
             
             j end_module
             
@@ -310,45 +307,6 @@
             end_heaviside:
             	lw ra, 0(sp)
             	addi sp, sp, 8
-                jalr zero, 0(ra)
-
-        exp:
-            # z = x**y
-            # registros de entrada son:
-            #   x -> a0
-            #   y -> a1
-            # registros de salida son:
-            #   z -> a2
-            # registros temporales son: 
-            #   t0, t1
-            
-            addi sp, sp, -24
-            sw ra, 0(sp)
-            sw t0, 8(sp)
-            sw t1, 16(sp)
-            
-            addi a2, a0, 0
-            addi t0, a1, 0
-            li t1, 1
-            sub t0, t0, t1
-            
-            j while_exp
-            
-            while_exp:
-            	beq t0, zero, end_while_exp
-            	sub t0, t0, t1
-            	mul a2, a2, a0
-            	j while_exp
-            
-            end_while_exp:
-            
-            j end_exp
-            
-            end_exp:
-            	lw ra, 0(sp)
-            	lw t0, 8(sp)
-            	lw t1, 16(sp)
-            	addi sp, sp, 24
                 jalr zero, 0(ra)
 
     end:
