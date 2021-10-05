@@ -1,11 +1,11 @@
 .globl  start
 .data
     # --- TERREMOTO ---
-    I: .word 28, 57, 15	# porcentajes de cada uno de los ingredientes, siempre suman 100
+    I: .word 15, 84, 11	# porcentajes de cada uno de los ingredientes, siempre suman 100
     # No modificar
-    Wa: .word 7, 3, 2 	# pesos w_a para el primer perceptron
+    Wa: .word 15, 48, 37 	# pesos w_a para el primer perceptron
     Wb: .word 4, 2, 8 	# pesos w_b para el segundo perceptron
-    U:  .word 450 		# umbral
+    U:  .word 550	# umbral
     # --- END TERREMOTO ---
     # de aca para abajo van sus variables en memoria
 .text
@@ -310,6 +310,3 @@
                 jalr zero, 0(ra)
 
     end:
-
-
-        
