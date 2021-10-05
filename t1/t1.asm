@@ -99,10 +99,10 @@
         activacion:
             # y = f(x, u)
             # registros de entrada son:
-            #   x -> a0
-            #   u -> a1
+            #   x -> a0 a2
+            #   u -> a1 a3
             # registros de salida son:
-            #   y -> a2
+            #   y -> a2 a0
             # registros temporales son: 
             #   s0, s1, t0
             
@@ -135,9 +135,9 @@
                 mv t0, a2
             
             end_activacion_if:
-            mv a0, t0
+            mv a2, t0
             jal ra, heaviside
-            mv a2, a1
+            mv a2, a0
                         
             j end_activacion
             
@@ -290,21 +290,21 @@
         heaviside:
             # H(x) = 0 if x <= 0 else 1
             # registros de entrada son:
-            #   x -> a0
+            #   x -> a2
             # registros de salida son:
-            #   x -> a1
+            #   x -> a0
             # registros temporales son: 
             # ...
             
             addi sp, sp, -8
             sw ra, 0(sp)       
             
-            bgt a0, zero, positive # if a0 > zero then target
-                li a1, 0
+            bgt a2, zero, positive # if a2 > zero then target
+                li a0, 0
                 j end_heaviside
 
             positive:  # x > 0
-                li a1, 1
+                li a0, 1
                 j end_heaviside
             
             end_heaviside:
