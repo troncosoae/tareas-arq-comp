@@ -40,10 +40,10 @@
             add t3, t3, t4
             add t3, t3, t5
             
-            mv a0, t3
-            mv a1, t1
+            mv a2, t3
+            mv a3, t1
             jal ra, activacion
-            mv t6, a2
+            mv t6, a0
             
             #j end
             
@@ -64,10 +64,10 @@
             add t3, t3, t4
             add t3, t3, t5
             
-            mv a0, t3
-            mv a1, t1
+            mv a2, t3
+            mv a3, t1
             jal ra, activacion
-            mv s0, a2
+            mv s0, a0
             
             #j end
             
@@ -112,8 +112,8 @@
             sw s1, 16(sp)
             sw t0, 24(sp)
             
-            mv s0, a0
-            mv s1, a1
+            mv s0, a2
+            mv s1, a3
             
             bgt s0, s1, activacion_if
                 # x <= u
@@ -137,7 +137,7 @@
             end_activacion_if:
             mv a2, t0
             jal ra, heaviside
-            mv a2, a0
+            mv a0, a0
                         
             j end_activacion
             
